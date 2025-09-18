@@ -13,7 +13,6 @@
 
 - [SRS (требования)](docs/SRS.md)  
 - [Мокапы интерфейса](docs/mockups/)  
-- [Диаграммы](docs/diagrams/)  
 
 ---
 
