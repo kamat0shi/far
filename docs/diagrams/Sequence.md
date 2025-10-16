@@ -48,7 +48,7 @@ sequenceDiagram
     alt ничего не найдено
         UI->>U: "Токен не найден"
     end
-```
+
 ```
 
 ---
@@ -58,7 +58,39 @@ sequenceDiagram
 > Участники: **Пользователь** → **Web UI** → **Backend API** → **SpreadCalculator** → **ExchangeAdapter[N] / WS** → **Cache**  
 > Основные сообщения: `openSpreadsView()`, `subscribeWS()`, `onTick()`, `calculateSpread()`, `updateUI()`
 
-![Просмотр спредов](sequence/Sequence_ViewSpreads.png)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Пользователь
+    participant UI as Web UI
+    participant API as Backend API
+    participant CALC as SpreadCalculator
+    participant WS as Exchange WS/Adapters
+    participant C as Cache
+
+    U->>UI: Открыть "Спреды"
+    UI->>API: GET /api/spreads?base=SOL
+    par подписки по биржам
+        API->>WS: subscribe(base)
+    end
+
+    loop onTick
+        WS-->>API: tick(exchange, price)
+        API->>C: save(tick)
+        API->>CALC: calculate(base)
+        CALC-->>API: spreads[]
+        API-->>UI: push(spreads)
+        UI->>UI: updateUI()
+    end
+
+    alt Разрыв WS
+        UI->>API: периодический GET /api/prices?base=SOL
+        API->>CALC: calculate()
+        CALC-->>API: spreads[]
+        API-->>UI: spreads snapshot
+        UI->>UI: "Переподключение…"
+    end
+```
 
 ---
 
@@ -67,4 +99,36 @@ sequenceDiagram
 > Участники: **Пользователь** → **Web UI** → **Backend API** → **ExchangeAdapter(Биржа X)** → **Cache/DB**  
 > Основные сообщения: `selectExchange()`, `listContracts()`, `fetchLastPrices()`, `renderExchangeTable()`
 
-![Просмотр биржи](sequence/Sequence_ViewExchange.png)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Пользователь
+    participant UI as Web UI
+    participant API as Backend API
+    participant EX as ExchangeAdapter(Биржа X)
+    participant C as Cache/DB
+
+    U->>UI: Выбрать биржу (OKX)
+    UI->>API: GET /api/exchanges/okx/contracts
+    API->>C: getContracts(OKX)
+
+    alt cache hit
+        C-->>API: contracts[]
+    else cache miss
+        API->>EX: listContracts()
+        EX-->>API: contracts[]
+        API->>C: save(contracts)
+    end
+
+    par получать цены
+        API->>EX: fetchLastPrices(contracts)
+        EX-->>API: quotes[]
+    end
+
+    API-->>UI: 200 JSON (contract,type,margin,last,24hΔ)
+    UI->>UI: renderExchangeTable()
+
+    opt Показать спред
+        UI->>UI: переход на "Спреды"
+    end
+```
