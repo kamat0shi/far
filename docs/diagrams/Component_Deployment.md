@@ -13,71 +13,77 @@
 
 ```mermaid
 graph TD
-    subgraph Frontend [Frontend (React SPA)]
-        UI[Web UI / React Components]
-        Auth[Auth Modal]
-        SpreadView[Spreads Page]
-        FavView[Favorites Page]
+    %% Кластеры с безопасными заголовками
+    subgraph Frontend["Frontend / React SPA"]
+        UI["Web UI / React Components"]
+        Auth["Auth Modal"]
+        SpreadView["Spreads Page"]
+        FavView["Favorites Page"]
     end
 
-    subgraph Backend [Backend (FastAPI / Python)]
-        API[REST API Layer]
-        Adapters[Exchange Adapters]
-        SpreadCalc[Spread Calculator]
-        DB[(PostgreSQL)]
-        Cache[(Redis)]
+    subgraph Backend["Backend / FastAPI + Python"]
+        API["REST API Layer"]
+        Adapters["Exchange Adapters"]
+        SpreadCalc["Spread Calculator"]
+        DB["PostgreSQL"]
+        Cache["Redis"]
     end
 
-    subgraph External [Внешние API бирж]
-        OKX[OKX API]
-        Bybit[Bybit API]
-        Binance[Binance Futures API]
-        MEXC[MEXC API]
+    subgraph External["External Exchange APIs"]
+        OKX["OKX API"]
+        Bybit["Bybit API"]
+        Binance["Binance Futures API"]
+        MEXC["MEXC API"]
     end
 
+    %% Связи
     UI -->|HTTP / JSON| API
     Auth --> API
-    SpreadView -->|WS/HTTP| API
+    SpreadView -->|WS / HTTP| API
     FavView --> API
 
     API --> DB
     API --> Cache
     API --> Adapters
-    Adapters --> External
+    Adapters --> OKX
+    Adapters --> Bybit
+    Adapters --> Binance
+    Adapters --> MEXC
     API --> SpreadCalc
     SpreadCalc --> Cache
+
 ```
 
 ### 2. Диаграмма развёртывания <a name="deployment"></a>
 
 ```mermaid
 graph TD
-    subgraph UserDevice [User Device]
-        Browser[Browser (React SPA)]
+    subgraph UserDevice["User Device"]
+        Browser["Browser - React SPA"]
     end
 
-    subgraph Server [VPS / Cloud Host]
-        Nginx[Nginx Reverse Proxy]
-        BackendApp[FastAPI Backend]
-        Redis[Redis Cache]
-        Postgres[(PostgreSQL Database)]
+    subgraph Server["VPS / Cloud Host"]
+        Nginx["Nginx Reverse Proxy"]
+        BackendApp["FastAPI Backend"]
+        Redis["Redis Cache"]
+        Postgres["PostgreSQL Database"]
     end
 
-    subgraph ExternalAPIs [Exchange Networks]
-        OKX[OKX REST/WS]
-        Bybit[Bybit REST/WS]
-        Binance[Binance REST/WS]
-        MEXC[MEXC REST/WS]
+    subgraph ExternalAPIs["Exchange Networks"]
+        OKX["OKX REST / WS"]
+        Bybit["Bybit REST / WS"]
+        Binance["Binance REST / WS"]
+        MEXC["MEXC REST / WS"]
     end
 
     Browser -->|HTTPS| Nginx
     Nginx --> BackendApp
     BackendApp --> Redis
     BackendApp --> Postgres
-    BackendApp -->|REST/WS| OKX
-    BackendApp -->|REST/WS| Bybit
-    BackendApp -->|REST/WS| Binance
-    BackendApp -->|REST/WS| MEXC
+    BackendApp -->|REST / WS| OKX
+    BackendApp -->|REST / WS| Bybit
+    BackendApp -->|REST / WS| Binance
+    BackendApp -->|REST / WS| MEXC
 ```
 
 SPA (React) развёрнута как статические файлы в Nginx, который проксирует /api/* к FastAPI.
