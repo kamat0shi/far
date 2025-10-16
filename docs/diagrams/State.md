@@ -1,4 +1,4 @@
-```memraid
+```mermaid
 stateDiagram-v2
     [*] --> Idle
 
