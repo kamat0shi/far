@@ -16,6 +16,41 @@
 
 ![Поиск токена](sequence/Sequence_SearchToken.png)
 
+sequenceDiagram
+    autonumber
+    actor U as Пользователь
+    participant UI as Web UI (SPA)
+    participant API as Backend API
+    participant C as Cache/DB
+    participant EX as ExchangeAdapter[N]
+
+    U->>UI: Ввод base (например, "SOL") и поиск
+    UI->>API: GET /api/search?base=SOL
+    API->>C: getInstruments(base)
+
+    alt cache hit
+        C-->>API: instruments[]
+    else cache miss
+        par по биржам
+            API->>EX: fetchInstruments(base)
+            EX-->>API: instruments[i]
+        end
+    end
+
+    API->>API: normalize() + merge()
+    par цены по биржам
+        API->>EX: fetchPrices(symbols)
+        EX-->>API: quotes[i]
+    end
+
+    API-->>UI: 200 JSON (exchange, symbol, last/mark, 24hΔ)
+    UI->>UI: renderTable()
+
+    alt ничего не найдено
+        UI->>U: Сообщение "Токен не найден"
+    end
+
+
 ---
 
 ### 2. Просмотр спредов <a name="2"></a>
