@@ -14,17 +14,16 @@
 > Участники: **Пользователь** → **Web UI** → **Backend API** → **Cache/DB** → **ExchangeAdapter[N]**  
 > Основные сообщения: `searchToken()`, `getInstruments()`, `fetchPrices()`, `normalize()`, `renderTable()`
 
-![Поиск токена](sequence/Sequence_SearchToken.png)
-
+```mermaid
 sequenceDiagram
     autonumber
     actor U as Пользователь
-    participant UI as Web UI (SPA)
+    participant UI as Web UI SPA
     participant API as Backend API
     participant C as Cache/DB
     participant EX as ExchangeAdapter[N]
 
-    U->>UI: Ввод base (например, "SOL") и поиск
+    U->>UI: Ввод base ("SOL") и поиск
     UI->>API: GET /api/search?base=SOL
     API->>C: getInstruments(base)
 
@@ -47,7 +46,7 @@ sequenceDiagram
     UI->>UI: renderTable()
 
     alt ничего не найдено
-        UI->>U: Сообщение "Токен не найден"
+        UI->>U: "Токен не найден"
     end
 
 
