@@ -49,7 +49,7 @@ sequenceDiagram
         UI->>U: "Токен не найден"
     end
 ```
-
+```
 
 ---
 
