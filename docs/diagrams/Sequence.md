@@ -47,7 +47,8 @@ sequenceDiagram
 
     alt ничего не найдено
         UI->>U: "Токен не найден"
-    end```
+    end
+```
 
 
 ---
