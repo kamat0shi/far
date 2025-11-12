@@ -1,8 +1,6 @@
 # Test Results — Futures Arbitrage Radar (FAR)
 
 Версия плана: 1.0  
-Период тестирования: YYYY-MM-DD … YYYY-MM-DD  
-Исполнители: …
 
 ## 1. Резюме
 - Пройдено (Pass): 5
